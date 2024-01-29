@@ -12,7 +12,12 @@
         const spotlist = document.getElementById('spots')
 
         let showData = spots.CommonFormat.Section.map((data, index) => {
-            const imgpath = spots.CommonFormat.Section[index]?.file?.img?.[0]?.text || '';  //確保不訪問到不存在的屬性
+
+            //依照圖片是否為陣列，判斷訪問的路徑
+            const imgObject = spots.CommonFormat.Section[index]?.file?.img;
+            const imgPath = Array.isArray(imgObject) ? imgObject[0]?.text : imgObject?.text || '';
+
+            //設定顯示的 data.xbody 字數
             let spot_intro = data.xbody;
             if (spot_intro.length > 100) {
                 spot_intro = spot_intro.substring(0, 100) + "……";
@@ -20,10 +25,10 @@
 
             return `<div class="col">
                 <div class="card h-100">
-                            <img src="${imgpath}" class="card-img-top" alt="AA">
+                          <img src="${imgPath}" class="card-img-top" alt="${data.stitle}">
                     <div class="card-body">
                        <h5 class="card-title">${data.stitle}</h5>
-                               <p class="card-text">${spot_intro}</p>
+                          <p class="card-text">${spot_intro}</p>
                     </div>
                     <div class="card-footer">
                        <small class="text-body-secondary">${data.address}</small>
