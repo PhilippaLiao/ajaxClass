@@ -1,5 +1,7 @@
 ﻿using ajaxClass1.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace ajaxClass1.Controllers

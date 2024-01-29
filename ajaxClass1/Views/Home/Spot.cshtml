@@ -3,5 +3,34 @@
     ViewData["Title"] = "Spot";
 }
 
-<h1>Spot</h1>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="spots">
+</div>
 
+@section Scripts {
+    <script src="~/js/travel.js"></script>
+    <script>
+        const spotlist = document.getElementById('spots')
+
+        let showData = spots.CommonFormat.Section.map((data, index) => {
+            const imgpath = spots.CommonFormat.Section[index]?.file?.img?.[0]?.text || '';  //確保不訪問到不存在的屬性
+            let spot_intro = data.xbody;
+            if (spot_intro.length > 100) {
+                spot_intro = spot_intro.substring(0, 100) + "……";
+            }
+
+            return `<div class="col">
+                <div class="card h-100">
+                            <img src="${imgpath}" class="card-img-top" alt="AA">
+                    <div class="card-body">
+                       <h5 class="card-title">${data.stitle}</h5>
+                               <p class="card-text">${spot_intro}</p>
+                    </div>
+                    <div class="card-footer">
+                       <small class="text-body-secondary">${data.address}</small>
+                    </div>
+                </div>
+            </div>`
+        })
+        spotlist.innerHTML = showData.join("");
+    </script>
+}
