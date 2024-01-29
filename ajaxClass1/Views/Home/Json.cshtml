@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewData["Title"] = "Json";
+}
+
+<h1>Json</h1>
+<ul id="list">
+</ul>
+
+
+@section Scripts{
+    <script src="~/js/travel.js"></script>
+    <script>
+        let emps = [
+            { "name": "Tom", "workYears": 3, "salary": 35000 },
+            { "name": "Jack", "workYears": 5, "salary": 40000 },
+            { "name": "Mary", "workYears": 7, "salary": 45000 }];
+        // console.log(emps);
+
+        // for (let i = 0; i < emps.length ; i++) {
+        //     console.log(emps[i].name);
+        //     console.log(emps[i].workYears);
+        //     console.log(emps[i].salary);
+        // };
+
+        // emps.forEach((emps) => {
+        //     console.log(emps.name);
+        //     console.log(emps.workYears);
+        //     console.log(emps.salary);
+        // })
+        const list = document.getElementById('list')
+        let data = emps.map((emps) => {
+            return `<li>姓名：${emps.name}，工作年資：${emps.workYears}年，薪水：${emps.salary}元</li>`
+        })
+        list.innerHTML = data.join("");
+
+        console.log(spots.CommonFormat.Section);
+    </script>
+
+
+}
