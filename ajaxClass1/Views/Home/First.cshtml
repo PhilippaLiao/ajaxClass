@@ -1,0 +1,89 @@
+﻿
+@{
+    ViewData["Title"] = "First";
+}
+
+<h1>First</h1>
+<input type="button" class="btn btn-primary mb-3" value="Ajax 開始" id="btnStart"/>
+<img src="~/images/loading.gif" style="display:none" id="loading"/>
+<div class="alert alert-info" id="info"></div>
+
+@section Scripts{
+    <script>
+        const btnStart = document.getElementById('btnStart');
+        const info = document.getElementById('info');
+        const loading = document.getElementById('loading');
+        let abortController;
+
+        // btnStart.addEventListener('click', () => {
+        //     info.innerHTML = "<h3>Ajax 開始</h3>";
+        // });
+
+        // fetch("/api/index")
+        // fetch('@Url.Content("~/api/index")')
+        fetch('@Url.Action("index","api")')
+            .then(response => {
+                return response.text();
+            })
+            .then(data => {
+                info.innerHTML = `<h3>${data}</h3>`;
+            })
+
+
+        // fetch('@Url.Content("~/api/index")')
+        //     .then(response => {
+
+        //         response.headers.forEach((value, name) => {
+        //             console.log(`${name}：${value}`);
+        //         });
+        //         console.log("-----------------------------------");
+        //         console.log(response.headers.get('Content-Type'));
+        //         console.log(response.status);
+        //         console.log(response.ok);
+        //         return response.text();
+        //     })
+        //     .then(data => {
+        //         info.innerHTML = `<h3>${data}</h3>`;
+        //     })
+
+        btnStart.addEventListener('click', async () => {
+            try {
+
+                //顯示執行中的圖示
+                loading.style.display = "inline";
+                //關閉按鈕
+                btnStart.setAttribute("disabled","disabled");
+
+                abortController = new AbortController();
+                const signal = abortController.signal;
+
+                setTimeout(() => { 
+                    abortController.abort() 
+                }, 5000);
+
+                const response = await fetch('@Url.Content("~/api/index")', {signal});
+                if (!response.ok) {
+                    throw new Error(`${response.status}`);
+                }
+                const data = await response.text();
+                info.innerHTML = `<h3>${data}</h3>`;
+            } 
+            catch (error) {
+                if (error.name === "AbortError") {
+                    message = "伺服器忙碌中，請稍後再來！";
+                }
+                info.innerHTML = `<h3>${message}</h3>`;
+            } 
+            finally {
+                loading.style.display = "none";
+                btnStart.removeAttribute("disabled");
+                console.log('finally');
+            }
+        })
+
+
+        //console.log(fetch("/api/index"));
+
+    </script>
+}
+

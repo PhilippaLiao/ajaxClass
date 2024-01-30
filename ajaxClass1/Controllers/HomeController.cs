@@ -28,6 +28,15 @@ namespace ajaxClass1.Controllers
         {
             return View();
         }
+        public IActionResult First()
+        {
+            return View();
+        }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {
