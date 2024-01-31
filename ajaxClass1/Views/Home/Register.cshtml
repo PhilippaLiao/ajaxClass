@@ -58,16 +58,24 @@
 
 
         userName.addEventListener('blur', async () => {
+
+            //判斷欄位是否為空
             if (userName.value.trim() !== '') {
                 const url = `@Url.Content("~/api/checkaccount")?name=${userName.value}`;
                 const response = await fetch(url);
                 const data = await response.text();
-                divWarning.innerText = data;
-            } else {
 
+                if (data == "帳號已存在")
+                    divWarning.style.color = 'red';
+                else  //帳號可使用的狀況
+                    divWarning.style.color = null;
+
+                divWarning.innerText = data;
+
+            } else {
                 divWarning.innerText = "請輸入姓名";
+                divWarning.style.color = null;
             }
         });
-        
     </script>
 }

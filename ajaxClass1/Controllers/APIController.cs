@@ -39,9 +39,11 @@ namespace ajaxClass1.Controllers
         }
 
         //根據鄉鎮區讀取路名
-        public IActionResult Roads(string district)
+        public IActionResult Roads(string city, string district)
         {
-            var roads = _context.Addresses.Where(c => c.SiteId == district).Select(d => d.Road).Distinct();
+            var roads = _context.Addresses
+                .Where(c => c.City == city && c.SiteId == district)
+                .Select(d => d.Road).Distinct();
             return Json(roads);
         }
 
