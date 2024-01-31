@@ -24,10 +24,25 @@ namespace ajaxClass1.Controllers
             return Content("Hi 我來自 APIController！", "text/plain", Encoding.UTF8);
         }
 
+        //讀取城市資料
         public IActionResult Cities()
         {
             var cities = _context.Addresses.Select(c => c.City).Distinct();
             return Json(cities);
+        }
+
+        //根據城市讀取鄉鎮區
+        public IActionResult Districts(string city)
+        {
+            var districts = _context.Addresses.Where(c => c.City == city).Select(d=> d.SiteId).Distinct();
+            return Json(districts);
+        }
+
+        //根據鄉鎮區讀取路名
+        public IActionResult Roads(string district)
+        {
+            var roads = _context.Addresses.Where(c => c.SiteId == district).Select(d => d.Road).Distinct();
+            return Json(roads);
         }
 
         public IActionResult Avatar(int id = 1)
@@ -64,13 +79,13 @@ namespace ajaxClass1.Controllers
 
         public IActionResult CheckAccount(UserDTO user)
         {
-            var result = _context.Members.Where(m => m.Name == user.Name).FirstOrDefault();
-            if (result != null)
+            var result = _context.Members.Any(m => m.Name == user.Name);
+            if (result == true)
             {
-                return Content("帳號可使用", "text/plain", Encoding.UTF8);
+                return Content("帳號已存在", "text/plain", Encoding.UTF8);
 
             }
-            return Content("帳號已存在", "text/plain", Encoding.UTF8);
+            return Content("帳號可使用", "text/plain", Encoding.UTF8);
         }
     }
 }

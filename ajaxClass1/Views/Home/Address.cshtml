@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+<h1>Address</h1>
+<select id="selectCity">
+    <option value="1">Item1</option>
+</select>
+<select id="selectDistrict">
+    <option value="1">Item1</option>
+</select>
+
+@section Scripts{
+    <script>
+        const selectCity = document.getElementById('selectCity');
+        const selectDistrict = document.getElementById('selectDistrict');
+
+        (async () => {
+            const url = '@Url.Content("~/api/cities")';
+            const response = await fetch(url);
+            const datas = await response.json();
+
+            const options = datas.map(city => {
+                return `<option value=${city}>${city}</option>`
+            });
+
+            selectCity.innerHTML = options.join("");
+
+            //載入鄉鎮區
+            loadDistrict();
+
+            //載入路名
+
+
+        })();
+
+
+        let loadDistrict = async () => {
+            const city = selectCity.options[selectCity.selectedIndex].value;
+            const url = `@Url.Content("~/api/districts")?city=${city}`;
+            const response = await fetch(url);
+            const datas = await response.json();
+            // console.log(datas);
+
+            const options = datas.map(district => {
+                return `<option value=${district}>${district}</option>`
+            });
+            selectDistrict.innerHTML = options.join("");
+        };
+
+        selectCity.addEventListener('change', () => {
+            loadDistrict();
+        });
+
+
+    </script>
+}
