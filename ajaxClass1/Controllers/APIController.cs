@@ -72,28 +72,59 @@ namespace ajaxClass1.Controllers
         //    return Content($"歡迎，{age}歲的{name}！", "text/plain", Encoding.UTF8);
         //}
 
-        [HttpPost]
-        public IActionResult Register(UserDTO _user)
+        [HttpPost]                   //Member模型裡的屬性型別非IFormFile，在此另設一參數來處理
+        public IActionResult Register(Member _user, IFormFile avatar)
         {
+            //設定使用者姓名，預設值為 guest
             if (string.IsNullOrEmpty(_user.Name))
             {
                 _user.Name = "guest";
             }
 
+            //設定使用者頭像的檔案名，若無檔案則指定為 empty.png
+
             string fileName = "empty.png";
-            if (_user.Avatar?.FileName != null)
+            if (avatar != null)
             {
-                fileName = _user.Avatar.FileName;
+                fileName = avatar.FileName;
+
+                string[] type = { "image/jpeg", "image/jpeg", "image/png", "image/gif" };
+                if(!type.Contains(avatar.ContentType))
+                {
+                    return Content("檔案格式非圖檔");
+                }
             }
+
+            
+            //todo
+            //1. 只允許上傳圖檔
+            //2. 圖檔最大2M
+            //3. 檔案名稱重複處理
 
             string filePath = Path.Combine(_environment.WebRootPath,"uploads", fileName);
             using (var filestream = new FileStream(filePath, FileMode.Create))
             {
-                _user.Avatar?.CopyTo(filestream);
+                avatar?.CopyTo(filestream);
             }
 
-            //return Content($"歡迎，{_user.Name}。您今年 {_user.Age} 歲，電子郵件是 {_user.Email}。", "text/plain", Encoding.UTF8);
-            return Content($"{_user.Avatar?.FileName} - {_user.Avatar?.ContentType} - {_user.Avatar?.Length}");
+            //將圖片新增到資料庫
+
+            //存回 Member 屬性 FileName
+            _user.FileName = fileName;
+
+            //轉為二進位資料後，存回 Member 屬性 FileData
+            byte[]? bytes = null;
+            using (var memoryStream = new MemoryStream())
+            {
+                avatar.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+            _user.FileData = bytes;
+
+            _context.Members.Add(_user);
+            _context.SaveChanges();
+
+            return Content($"歡迎，{_user.Name}。您今年 {_user.Age} 歲，電子郵件是 {_user.Email}。", "text/plain", Encoding.UTF8);
         }
 
         public IActionResult CheckAccount(UserDTO _user)

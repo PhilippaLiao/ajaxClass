@@ -1,0 +1,119 @@
+﻿
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>Register</h1>
+<div class="row">
+    <div class="col-3"></div>
+    <div class="col-6">
+        <form id="userForm">
+            <div class="mb-3">
+                <label for="userName" class="form-label">姓名：</label>
+                <input type="text" class="form-control" id="userName" name="Name">
+                <div class="alert alert-warning" id="divWarning"></div>
+            </div>
+            <div class="mb-3">
+                <label for="UserEmail" class="form-label">電子郵件：</label>
+                <input type="email" class="form-control" id="UserEmail" name="Email">
+            </div>
+            <div class="mb-3">
+                <label for="userPassword" class="form-label">密碼：</label>
+                <input type="Password" class="form-control" id="userPassword" name="password">
+            </div>
+            <div class="mb-3">
+                <label for="passwordConfirm" class="form-label">密碼確認：</label>
+                <input type="Password" class="form-control" id="passwordConfirm" name="passwordConfirm">
+                <div class="alert alert-warning" id="confirmWarning"></div>
+            </div>
+            <div class="mb-3">
+                <label for="userAge" class="form-label">年紀：</label>
+                <input type="number" class="form-control" id="userAge" name="Age">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="inputGroupFile01">頭像：</label>
+                <input type="file" class="form-control" id="inputGroupFile01" name="Avatar">
+            </div>
+            <button id="btnSummit" type="submit" class="btn btn-primary">送出</button>
+        </form>
+        <div class="alert alert-info" id="div1"></div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        const divWarning = document.getElementById('divWarning');
+        const btnSummit = document.getElementById('btnSummit');
+        const div1 = document.getElementById('div1');
+        const confirmWarning = document.getElementById('confirmWarning');
+
+        btnSummit.addEventListener('click', async (event) => {
+
+            event.preventDefault();  //停止預設行為
+
+            const formData = new FormData(document.getElementById('userForm'));
+            const response = await fetch('@Url.Content("~/api/register")', {
+                body:formData,
+                method:'POST'
+            });
+            const data = await response.text();
+            div1.innerHTML = data;
+        });
+
+
+        userName.addEventListener('blur', async () => {
+
+            //姓名欄位不為空的情形才進行判斷
+            if (userName.value.trim() !== '') {
+
+                //提出請求，查詢使用者姓名是否已存在於資料庫
+                const url = `@Url.Content("~/api/checkaccount")?name=${userName.value}`;
+                const response = await fetch(url);
+                const data = await response.text();
+
+                if (data == "帳號已存在")
+                    divWarning.style.color = 'red';
+                else  //帳號可使用的狀況
+                    divWarning.style.color = null;
+
+                divWarning.innerText = data;
+
+            } else {
+                //提示使用者輸入姓名
+                divWarning.innerText = "請輸入姓名";
+                divWarning.style.color = null;
+            }
+        });
+
+        //密碼確認欄位失焦事件，在密碼欄位不為空的情形下進行判斷
+        passwordConfirm.addEventListener('blur', () => {
+            if (userPassword.value !== null && userPassword.value.trim() !== '') {
+                if (userPassword.value === passwordConfirm.value) {
+                    confirmWarning.style.color = null;
+                    confirmWarning.innerText = "確認密碼與密碼相符";
+                }
+                else {
+                    confirmWarning.style.color = 'red';
+                    confirmWarning.innerText = "確認密碼與密碼不相符";
+                }
+            }
+        });
+
+        //密碼欄位失焦事件，在密碼確認欄位不為空的情形下進行判斷
+        userPassword.addEventListener('blur', () => {
+            if (passwordConfirm.value !== null && passwordConfirm.value.trim() !== '') {
+                if (userPassword.value === passwordConfirm.value) {
+                    confirmWarning.style.color = null;
+                    confirmWarning.innerText = "確認密碼與密碼相符";
+                }
+                else {
+                    confirmWarning.style.color = 'red';
+                    confirmWarning.innerText = "確認密碼與密碼不相符";
+                }
+            }
+        });
+
+    </script>
+}
