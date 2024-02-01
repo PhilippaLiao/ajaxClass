@@ -24,10 +24,6 @@ namespace ajaxClass1.Controllers
             return View();
         }
 
-        public IActionResult Spot()
-        {
-            return View();
-        }
         public IActionResult First()
         {
             return View();
