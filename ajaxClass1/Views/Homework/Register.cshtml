@@ -31,8 +31,9 @@
                 <input type="number" class="form-control" id="userAge" name="Age">
             </div>
             <div class="mb-3">
-                <label class="form-label" for="inputGroupFile01">頭像：</label>
-                <input type="file" class="form-control" id="inputGroupFile01" name="Avatar">
+                <label class="form-label" for="inputGroupFile">頭像：</label>
+                <input type="file" class="form-control" id="inputGroupFile" name="Avatar">
+                <div class="alert alert-warning" id="fileWarning"></div>
             </div>
             <button id="btnSummit" type="submit" class="btn btn-primary">送出</button>
         </form>
@@ -48,6 +49,7 @@
         const btnSummit = document.getElementById('btnSummit');
         const div1 = document.getElementById('div1');
         const confirmWarning = document.getElementById('confirmWarning');
+        const fileWarning = document.getElementById('fileWarning');
 
         btnSummit.addEventListener('click', async (event) => {
 
@@ -59,7 +61,15 @@
                 method:'POST'
             });
             const data = await response.text();
-            div1.innerHTML = data;
+            if (data == "檔案格式非圖檔" || data == "檔案超過2MB") {
+                fileWarning.innerHTML = data;
+                fileWarning.style.color = 'red';
+            }
+            else{
+                div1.innerHTML = data;
+                fileWarning.innerHTML = "";
+                fileWarning.style.color = null;
+            }
         });
 
 
@@ -114,6 +124,5 @@
                 }
             }
         });
-
     </script>
 }

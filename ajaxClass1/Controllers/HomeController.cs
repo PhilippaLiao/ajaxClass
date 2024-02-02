@@ -54,6 +54,10 @@ namespace ajaxClass1.Controllers
             return View();
         }
 
+        public IActionResult Cors()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {

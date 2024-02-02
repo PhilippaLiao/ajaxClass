@@ -2,6 +2,7 @@
 using ajaxClass1.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.Text;
 
@@ -82,32 +83,52 @@ namespace ajaxClass1.Controllers
             }
 
             //設定使用者頭像的檔案名，若無檔案則指定為 empty.png
-
             string fileName = "empty.png";
             if (avatar != null)
             {
                 fileName = avatar.FileName;
 
+                // 只允許上傳圖檔
                 string[] type = { "image/jpeg", "image/jpeg", "image/png", "image/gif" };
                 if(!type.Contains(avatar.ContentType))
                 {
                     return Content("檔案格式非圖檔");
                 }
+
+                //檔案大小限制2MB
+                int maxSize = 2 * 1024 * 1024;
+                if(avatar.Length > maxSize)
+                {
+                    return Content("檔案超過2MB");
+                }
             }
 
-            
-            //todo
-            //1. 只允許上傳圖檔
-            //2. 圖檔最大2M
-            //3. 檔案名稱重複處理
-
+            //======= 將上傳圖片存入根目錄uploads資料夾 =======
             string filePath = Path.Combine(_environment.WebRootPath,"uploads", fileName);
+            
+            //檔案名稱重複處理
+            bool isSame = _context.Members.Any(s => s.FileName == fileName && s.FileName != "empty.png");
+            if (isSame)
+            {
+                string onlyName = Path.GetFileNameWithoutExtension(filePath);
+                string onlyExtension = Path.GetExtension(filePath);
+                string newFileName = onlyName;
+                int count = 1;
+                while (_context.Members.Any(s => s.FileName == $"{onlyName}({count}){onlyExtension}"))
+                {
+                    count++;
+                }
+
+                fileName = $"{onlyName}({count}){onlyExtension}";
+                filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);
+            }
+
             using (var filestream = new FileStream(filePath, FileMode.Create))
             {
                 avatar?.CopyTo(filestream);
             }
 
-            //將圖片新增到資料庫
+            //======= 將上傳圖片新增到資料庫 =======
 
             //存回 Member 屬性 FileName
             _user.FileName = fileName;
@@ -116,7 +137,7 @@ namespace ajaxClass1.Controllers
             byte[]? bytes = null;
             using (var memoryStream = new MemoryStream())
             {
-                avatar.CopyTo(memoryStream);
+                avatar?.CopyTo(memoryStream);
                 bytes = memoryStream.ToArray();
             }
             _user.FileData = bytes;
@@ -124,7 +145,7 @@ namespace ajaxClass1.Controllers
             _context.Members.Add(_user);
             _context.SaveChanges();
 
-            return Content($"歡迎，{_user.Name}。您今年 {_user.Age} 歲，電子郵件是 {_user.Email}。", "text/plain", Encoding.UTF8);
+            return Content($"恭喜完成註冊！歡迎{_user.Name}。您今年 {_user.Age} 歲，電子郵件是 {_user.Email}。", "text/plain", Encoding.UTF8);
         }
 
         public IActionResult CheckAccount(UserDTO _user)
