@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewData["Title"] = "Address";
+}
+
+<h1 class="mb-3">Address</h1>
+<div>
+    <select id="selectCity"></select>
+    <select id="selectDistrict"></select>
+    <select id="selectRoad"></select>
+</div>
+
+@section Scripts{
+    <script>
+        const selectCity = document.getElementById('selectCity');
+        const selectDistrict = document.getElementById('selectDistrict');
+        const selectRoad = document.getElementById('selectRoad');
+
+        //IIFE：網頁載入時立即執行匯入城市選項
+        (async () => {
+            const url = '@Url.Content("~/api/cities")';
+            const response = await fetch(url);
+            const datas = await response.json();
+
+            const options = datas.map(city => {
+                return `<option value=${city}>${city}</option>`
+            });
+
+            selectCity.innerHTML = options.join("");
+
+            //載入鄉鎮區選項（待城市選項匯入結束）
+            loadDistrict();
+
+        })();
+
+
+        let loadDistrict = async () => {
+            const city = selectCity.options[selectCity.selectedIndex].value;
+            const url = `@Url.Content("~/api/districts")?city=${city}`;
+            const response = await fetch(url);
+            const datas = await response.json();
+
+            const options = datas.map(district => {
+                return `<option value=${district}>${district}</option>`
+            });
+            selectDistrict.innerHTML = options.join("");
+
+            //載入路名（待鄉鎮區選項匯入結束）
+            loadRoad();
+        };
+
+        let loadRoad = async () => {
+            const city = selectCity.options[selectCity.selectedIndex].value;
+            const district = selectDistrict.options[selectDistrict.selectedIndex].value;
+            const url = `@Url.Content("~/api/roads")?city=${city}&district=${district}`;
+            const response = await fetch(url);
+            const datas = await response.json();
+
+            const options = datas.map(road => {
+                return `<option value=${road}>${road}</option>`
+            });
+            selectRoad.innerHTML = options.join("");
+        };
+
+        selectCity.addEventListener('change', () => {
+            loadDistrict();
+        });
+
+        selectDistrict.addEventListener('change', () => {
+            loadRoad();
+        });
+
+    </script>
+}
