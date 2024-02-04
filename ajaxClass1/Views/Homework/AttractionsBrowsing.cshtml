@@ -5,66 +5,88 @@
 
 <h1 class="m-3">景點瀏覽</h1>
 <div class="row">
-    <div class="col-3"></div>
-    <div class="col-6">
+    <div class="col-3">
+        <select class="form-select" aria-label="Default select example" id="pageSize">
+            <option value="9">每頁9筆資料</option>
+            <option value="18">每頁18筆資料</option>
+            <option value="24">每頁24筆資料</option>
+            <option value="30" selected>每頁30筆資料</option>
+        </select>
+    </div>
+    <div class="col-4">
         <nav aria-label="Page navigation example">
-            <ul class="pagination" id="ul1">
+            <ul class="pagination" id="ulSpots">
             </ul>
         </nav>
+    </div>
+    <div class="col-2">
+        <select class="form-select" aria-label="Default select example" id="dataOrder">
+            <option value="idAsc" selected>景點編號升冪</option>
+            <option value="idDesc">景點編號降冪</option>
+            <option value="nameAsc">景點名稱升冪</option>
+            <option value="nameDesc">景點名稱降冪</option>
+            <option value="categoryIdAsc">景點類別升冪</option>
+            <option value="categoryIdDesc">景點類別降冪</option>
+        </select>
     </div>
     <div class="col-3">
         <input type="search" class="form-control mb-3" placeholder="景點搜尋" id="inputKeyword" />
     </div>
 </div>
-<div class="row row-cols-1 row-cols-md-3 g-4" id="spots">
-</div>
+<nav aria-label="...">
+    <ul class="pagination pagination-lg" id="ulCategories">
+    </ul>
+</nav>
+<div class="row row-cols-1 row-cols-md-3 g-4" id="spots"></div>
+
 
 @section Scripts {
 
     <script>
         const spotlist = document.getElementById('spots');
-        const ulPaging = document.getElementById('ul1');
+        const ulSpots = document.getElementById('ulSpots');
+        const pageSize = document.getElementById('pageSize');
+        const dataOrder = document.getElementById('dataOrder');
+        const ulCategories = document.getElementById('ulCategories');
 
         const searchData = {
             "categoryId": 0,
-            "keyword": "北投",
+            "keyword": "",
             "page": 1,
-            "pageSize": 9,
+            "pageSize": 30,
             "sortType": "asc",
             "sortBy": ""
         };
 
         const loadData = async () => {
 
-            const resopnse = await fetch('@Url.Content("~/api/spots")', {
+            const response = await fetch('@Url.Content("~/api/spots")', {
                 'method': 'POST',
                 'body': JSON.stringify(searchData),
                 'headers': {
                     'Content-Type': 'application/json'
                 }
             });
-            const datas = await resopnse.json();
-            console.log(datas);
+            const datas = await response.json();
 
-
-            //顯示資料
+            //顯示景點資料
             const displayData = datas.spotsResult.map(spot => {
                 const { spotTitle, spotImage, address, spotDescription } = spot;
 
                 //設定顯示的 spotDescription 字數
-                let displayDesCription;
+                let displayDescription;
                 if (spotDescription.length > 100) {
-                    displayDesCription = spotDescription.substring(0, 100) + "……";
+                    displayDescription = spotDescription.substring(0, 100) + "……";
                 }
                 else
-                    displayDesCription = spotDescription;
+                    displayDescription = spotDescription;
 
                 return (`<div class="col">
                                     <div class="card h-100">
                                             <img src="${spotImage}" class="card-img-top" alt="${spotTitle}">
                                         <div class="card-body">
                                             <h5 class="card-title">${spotTitle}</h5>
-                                            <p class="card-text">${displayDesCription}</p>
+                                            <p class="card-text">${displayDescription}</p>
                                         </div>
                                         <div class="card-footer">
                                             <small class="text-body-secondary">${address}</small>
@@ -78,15 +100,55 @@
             //動態生成分頁元素
             let liPaging = "";
             for (let i = 1; i <= datas.totalPages; i++) {
-                liPaging += ` <li class="page-item" onclick="pagingHandler(${i})"><a class="page-link" href="#">${i}</a></li>`
+                liPaging += ` <li class="page-item" onclick="spotsPagingHandler(${i})"><a class="page-link" href="#">${i}</a></li>`
             }
-            ulPaging.innerHTML = liPaging;
+            ulSpots.innerHTML = liPaging;
         };
 
-        // 根據選取分頁變換內容
-        const pagingHandler = page => {
+        // 根據選取景點分頁變換內容
+        const spotsPagingHandler = page => {
             searchData.page = page;
             loadData();
+        }
+
+        //顯示景點分類
+        const loadCategory = async () => {
+            const response = await fetch('@Url.Content("~/api/category")', {
+                'method': 'POST',
+                'body': JSON.stringify(searchData),
+                'headers': {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const datas = await response.json();
+
+            //動態生成景點分頁元素
+            let liPaging = '<li class="page-item" onclick="categoryPagingHandler(0)" id="categoryPage0"><a class="page-link" href="#">全部類別</a></li>';
+            for (let i = 1; i < datas.length; i++) {
+                liPaging += `<li class="page-item" onclick="categoryPagingHandler(${i})" id="categoryPage${i}"><a class="page-link" href="#">${datas[i]}</a></li>`;
+            }
+            ulCategories.innerHTML = liPaging;
+        };
+
+        // 根據選取景點類別分頁變換內容
+        const categoryPagingHandler = page => {
+            searchData.categoryId = page;
+            setCurrentPage(page);
+            loadData();
+        }
+
+        //設置特定類別分頁為當前類別頁面
+        function setCurrentPage(page) {
+            // 取得所有在 ulCategories 下的 li 元素
+            const listItems = ulCategories.getElementsByTagName('li');
+
+            // 移除所有 li 元素的 aria-current 屬性
+            for (let i = 0; i < listItems.length; i++) {
+                listItems[i].removeAttribute('aria-current');
+            }
+
+            const currentPage = document.getElementById("categoryPage" + page);
+            currentPage.setAttribute('aria-current', 'page');
         }
 
         //關鍵字搜尋
@@ -98,7 +160,47 @@
             }
         })
 
+        //排序
+        dataOrder.addEventListener('change', event => {
+            switch (event.target.value) {
+                case 'idAsc':
+                    searchData.sortBy = "";
+                    searchData.sortType = "asc";
+                    break;
+                case 'idDesc':
+                    searchData.sortBy = "";
+                    searchData.sortType = "desc";
+                    break;
+                case 'nameAsc':
+                    searchData.sortBy = "spotTitle";
+                    searchData.sortType = "asc";
+                    break;
+                case 'nameDesc':
+                    searchData.sortBy = "spotTitle";
+                    searchData.sortType = "desc";
+                    break;
+                case 'categoryIdAsc':
+                    searchData.sortBy = "categoryId";
+                    searchData.sortType = "asc";
+                    break;
+                case 'categoryIdDesc':
+                    searchData.sortBy = "categoryId";
+                    searchData.sortType = "desc";
+                    break;
+            }
+            searchData.page = 1;
+            loadData();
+        });
+
+        //一頁幾筆資料
+        pageSize.addEventListener('change', event => {
+            searchData.pageSize = event.target.value;
+            searchData.page = 1;
+            loadData();
+        });
+
         loadData();
+        loadCategory();
 
     </script>
 }

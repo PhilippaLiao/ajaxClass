@@ -9127,7 +9127,7 @@ function ajaxExtend( target, src ) {
  * - finds the right dataType (mediates between content-type and expected dataType)
  * - returns the corresponding response
  */
-function ajaxHandleResponses( s, jqXHR, responses ) {
+function ajaxHandleresponses( s, jqXHR, responses ) {
 
 	var ct, type, finalDataType, firstDataType,
 		contents = s.contents,
@@ -9137,7 +9137,7 @@ function ajaxHandleResponses( s, jqXHR, responses ) {
 	while ( dataTypes[ 0 ] === "*" ) {
 		dataTypes.shift();
 		if ( ct === undefined ) {
-			ct = s.mimeType || jqXHR.getResponseHeader( "Content-Type" );
+			ct = s.mimeType || jqXHR.getresponseHeader( "Content-Type" );
 		}
 	}
 
@@ -9391,7 +9391,7 @@ jQuery.extend( {
 			// URL without anti-cache param
 			cacheURL,
 
-			// Response headers
+			// response headers
 			responseHeadersString,
 			responseHeaders,
 
@@ -9444,7 +9444,7 @@ jQuery.extend( {
 				readyState: 0,
 
 				// Builds headers hashtable if needed
-				getResponseHeader: function( key ) {
+				getresponseHeader: function( key ) {
 					var match;
 					if ( completed ) {
 						if ( !responseHeaders ) {
@@ -9461,7 +9461,7 @@ jQuery.extend( {
 				},
 
 				// Raw string
-				getAllResponseHeaders: function() {
+				getAllresponseHeaders: function() {
 					return completed ? responseHeadersString : null;
 				},
 
@@ -9732,7 +9732,7 @@ jQuery.extend( {
 
 			// Get response data
 			if ( responses ) {
-				response = ajaxHandleResponses( s, jqXHR, responses );
+				response = ajaxHandleresponses( s, jqXHR, responses );
 			}
 
 			// Use a noop converter for missing script but not if jsonp
@@ -9750,11 +9750,11 @@ jQuery.extend( {
 
 				// Set the If-Modified-Since and/or If-None-Match header, if in ifModified mode.
 				if ( s.ifModified ) {
-					modified = jqXHR.getResponseHeader( "Last-Modified" );
+					modified = jqXHR.getresponseHeader( "Last-Modified" );
 					if ( modified ) {
 						jQuery.lastModified[ cacheURL ] = modified;
 					}
-					modified = jqXHR.getResponseHeader( "etag" );
+					modified = jqXHR.getresponseHeader( "etag" );
 					if ( modified ) {
 						jQuery.etag[ cacheURL ] = modified;
 					}
@@ -10065,7 +10065,7 @@ jQuery.ajaxTransport( function( options ) {
 									typeof xhr.responseText !== "string" ?
 										{ binary: xhr.response } :
 										{ text: xhr.responseText },
-									xhr.getAllResponseHeaders()
+									xhr.getAllresponseHeaders()
 								);
 							}
 						}

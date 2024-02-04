@@ -206,6 +206,13 @@ namespace ajaxClass1.Controllers
             return Json(spotsPaging);
         }
 
+        [HttpPost]
+        public IActionResult Category()
+        {
+            var categoryName = _context.Categories.Select(c => c.CategoryName);
+            return Json(categoryName);
+        }
+
         public IActionResult SpotTitle(string title)
         {
             var titles = _context.Spots.Where(s => s.SpotTitle.Contains(title)).Select(s => s.SpotTitle).Take(8);
